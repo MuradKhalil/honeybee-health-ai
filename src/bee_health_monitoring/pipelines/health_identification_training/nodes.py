@@ -1,6 +1,7 @@
 from typing import Dict, List, Tuple
 import numpy as np
 import pandas as pd
+from tensorflow import keras
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras import models, layers, optimizers, metrics
 from sklearn.model_selection import train_test_split
@@ -54,7 +55,7 @@ def split_data(X, y) -> Tuple:
 
     return X_train, X_test, y_train, y_test
 
-def train_model(X_train, y_train):
+def train_model(X_train, y_train) -> keras.Model:
     """Trains the linear regression model.
 
     Args:

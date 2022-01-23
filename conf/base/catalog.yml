@@ -19,7 +19,7 @@ single_bees_metadata:
   type: pandas.CSVDataSet
   filepath: data/01_raw/single_bees_metadata.csv
 
-heath_identification_model:
+bee_health_model:
   type: tensorflow.TensorFlowModelDataset
-  filepath: data/06_models/model.h5
-  versioned: false
+  filepath: data/06_models/bee_health_model.h5
+  versioned: true
