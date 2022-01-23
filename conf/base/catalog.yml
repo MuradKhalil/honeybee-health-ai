@@ -2,3 +2,24 @@
 #
 # Documentation for this file format can be found in "The Data Catalog"
 # Link: https://kedro.readthedocs.io/en/stable/05_data/01_data_catalog.html
+
+
+sample_bee:
+  type: bee_health_monitoring.extras.datasets.image_dataset.ImageDataSet
+  filepath: data/01_raw/single_bees/bee_images/001_043.png
+
+single_bees:
+  type: PartitionedDataSet
+  dataset: bee_health_monitoring.extras.datasets.image_dataset.ImageDataSet
+#  dataset: pillow.ImageDataSet
+  path: data/01_raw/single_bees/bee_images
+  filename_suffix: ".png"
+
+single_bees_metadata:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/single_bees_metadata.csv
+
+bee_health_model:
+  type: tensorflow.TensorFlowModelDataset
+  filepath: data/06_models/bee_health_model.h5
+  versioned: true
