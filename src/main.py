@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, File, UploadFile
+from fastapi import FastAPI, Request, File, UploadFile, Form
 from PIL import Image
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -9,9 +9,8 @@ from io import BytesIO
 import uvicorn
 import numpy as np
 import tensorflow as tf
-
+import base64
 # configs
-
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -32,9 +31,34 @@ async def index(request: Request):
 
 
 
-@app.get("/items/{id}", response_class=HTMLResponse)
-async def read_item(request: Request, id: str):
-    return templates.TemplateResponse("item.html", {"request": request, "id": id})
+# @app.get("/items/{id}", response_class=HTMLResponse)
+# async def read_item(request: Request, id: str):
+#     return templates.TemplateResponse("item.html", {"request": request, "id": id})
+
+
+@app.post("/predict")
+async def make_prediction(request: Request):
+    form_data = await request.form()
+    print(form_data)
+    image = form_data['input_image']
+    print(image)
+    print(type(image))
+    # contents = await input_image.read()
+
+    # uploaded_file = form_data.get('input_image')
+    # print(type(uploaded_file))
+    #print (input_image)
+    image = Image.open(BytesIO(image))
+    print(image)
+    # print(type(image))
+    image.save('input_image.jpg')
+    # input_image = base64.b64encode(input_image).decode('ascii')
+    # print(input_image)
+
+    
+
+    # return templates.TemplateResponse("report.html", {"request": request, "input_image": input_image })
+    return {'message': 'Honeybee health monitoring model is running!'}
 
 
 # @app.post("/predict")

@@ -21,12 +21,12 @@
           <!-- Upload image input-->
           <div class="input-group mb-3 px-2 py-2 rounded-pill bg-white shadow-sm">
             <form method="post" action="{{ url_for('make_prediction') }}">
-              <input type="file" name="input_image" class="form-control border-0">
-              <!-- <label id="upload-label" for="upload" class="font-weight-light text-muted">Choose image file</label>
+              <input id="upload" type="file" class="form-control border-0">
+              <!-- <input id="upload" type="file" onchange="readURL(this);" class="form-control border-0"> -->
+              <label id="upload-label" for="upload" class="font-weight-light text-muted">Choose image file</label>
               <div class="input-group-append">
                   <label for="upload" class="btn btn-light m-0 rounded-pill px-4"> <i class="fa fa-cloud-upload mr-2 text-muted"></i><small class="text-uppercase font-weight-bold text-muted">Choose file</small></label>
-              </div> -->
-              <input type="submit">
+              </div>
             </form>
           </div>
 
