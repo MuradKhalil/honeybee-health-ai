@@ -17,12 +17,12 @@ def make_prediction():
     f.save(full_filename)
 
     # call bee detection model server
-    # os.environ['NO_PROXY'] = '192.168.1.10'
     r = requests.post('http://192.168.1.10:8000/predict', files={'file': (full_filename, open(full_filename, 'rb'))})
     # os.remove(filename)
-    result = r.json() # dictionary
+    result = r.json() # returns dictionary
     print(result)
     # call bee health model server
     # input: {'file': hive_image, 'result': filtered_bee}
     # output: {'label': ['healthy', 'varroa beetle', ...], 'confidence': [0.3456, 0.5352, ...]}
-    return render_template("report.html", input_image = filename)
+    
+    return render_template("report.html", input_image = filename, result = result)
