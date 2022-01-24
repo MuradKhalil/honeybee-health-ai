@@ -1,6 +1,8 @@
 from fastapi import FastAPI, File
 import uvicorn
 import tensorflow_hub as hub
+from pydantic import BaseModel
+from typing import List
 from functions import run_detector, filter_bees, preprocess_and_save_input_image
 
 # configs
@@ -10,7 +12,13 @@ module_handle = "https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1"
 filename = 'input_image.jpg'
 
 
+class Prediction(BaseModel):
+    detection_boxes: List[List[float]] = []
+    detection_scores: List[float] = []
 
+
+
+# start application
 app = FastAPI()
 
 
@@ -25,11 +33,12 @@ def index():
     return {'message': 'Bee detection model is online.'}
 
 
-@app.post("/predict")
+@app.post("/predict", response_model=Prediction)
 async def make_prediction(file: bytes = File(...)):
     preprocess_and_save_input_image(file, filename)
     result = run_detector(model, filename)
     result_bees = filter_bees(result)
+
     return result_bees
 
 
