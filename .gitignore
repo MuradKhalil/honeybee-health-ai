@@ -1,3 +1,6 @@
+src/proxy_server/web_app/static/img/uploads/*
+
+
 ##########################
 # KEDRO PROJECT
 
@@ -157,3 +160,6 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+src/requirements.txt
+.ipython
