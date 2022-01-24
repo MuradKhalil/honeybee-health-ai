@@ -13,7 +13,7 @@ def make_prediction():
     # get input image file
     f = request.files['input_image']
     filename = f"{f.filename.split('.')[0]}_{uuid.uuid4().hex}.{f.filename.split('.')[-1]}" 
-    full_filename = f"web_app/static/img/{filename}" 
+    full_filename = f"web_app/static/img/uploads/{filename}" 
     f.save(full_filename)
 
     # call bee detection model server
