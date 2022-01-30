@@ -6,7 +6,7 @@ from typing import List
 from functions import run_detector, filter_bees, preprocess_and_save_input_image
 
 # configs
-module_handle = "https://tfhub.dev/google/faster_rcnn/openimages_v4/inception_resnet_v2/1"
+module_handle = "https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1"
 # https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1 - faster but less accurate (min_score > 0.2)
 # https://tfhub.dev/google/faster_rcnn/openimages_v4/inception_resnet_v2/1 - slower but more accurate (min_score > 0.6)
 filename = 'input_image.jpg'

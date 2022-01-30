@@ -38,7 +38,7 @@ def run_detector(detector, path: str):
 
 
 
-def filter_bees(result: dict, min_score: float = 0.6):
+def filter_bees(result: dict, min_score: float = 0.2):
 
     print(f"Total {len(result['detection_boxes'])} objects detected.")
     # filter by only bee labels
