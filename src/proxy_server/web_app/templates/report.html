@@ -1,10 +1,27 @@
 {% extends "layout.html" %}
 
+{% block heading %}
+📝 Your Hive Health Report
+{% endblock %}
 
 {% block body %}
 <br>
-<div class='text-center'>
-    <img src="static/img/uploads/{{ input_image }}" width="50%">
+<div class='text-center report'>
+    <img src="static/img/results/{{ input_image }}" width="50%">
+    <br><br>
+    {% if counts['bees'] == 0%}
+        <p>No bees were detected from your image.</p>
+    {% else %}
+        <p><b>Number of bees detected:</b> {{ counts['bees'] }}
+        <br><b>Number of healthy bees:</b> {{ counts['healthy'] }} ({{ "%.2f"| format(100*counts['healthy'] / counts['bees']) }}% of bees)
+        </p>
+    {% endif %}
+
+    <br>
+    
+    <a href="/" class="btn btn-lg btn-warning">Try another one!</a>
+    <br><br><br><br>
+
 </div>
-<p>{{ result }}</p>
+
 {% endblock %}

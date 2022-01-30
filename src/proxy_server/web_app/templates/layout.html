@@ -13,21 +13,35 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     {% block script %}{% endblock %}
 
-    <title>Honeybee Health</title>
+    <title>Honeybee Health AI</title>
     
     
   </head>
 
-  <body>
+  <body class="d-flex flex-column min-vh-100">
+    <nav class="navbar navbar-dark navbar-expand-lg bg-warning sticky-top">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+          <img src="/static/img/honey_bee_emoji.png" alt="" width="30" height="24" class="d-inline-block align-text-top"> <!-- https://www.carstickers.com/products/stickers/insect-stickers/bee-car-stickers-decals/marketplace/flying-honey-bee-icon/ -->
+          Honeybee Health AI
+        </a>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div class="navbar-nav">
+            <a class="nav-link active" aria-current="page" href="/">Home</a>
+            <a class="nav-link" href="/about">About</a>
+          </div>
+        </div>
+      </div>
+
+    </nav>
     <br>
-    <h1 class="display-4 text-white text-center">🍯 Honeybee Health AI 🐝 </h1>
-    <h1>{% block heading %}{% endblock %}</h1>
+    <h1 class="display-4 text-white text-center">{% block heading %}{% endblock %}</h1>
 
     <div class='container content'>
-      {% block body %}
-      {% endblock %}
+      {% block body %}{% endblock %}
     </div>
-
-
+    <footer class='mt-auto blog-footer'>
+      <p>Developed by Murad Khalilov and Rachel Moon.</p>
+    </footer>
   </body>
 </html>
