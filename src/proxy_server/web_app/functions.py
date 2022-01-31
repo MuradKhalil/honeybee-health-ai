@@ -1,28 +1,29 @@
-# For downloading the image.
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg') # don't use GUI
-
-# For drawing onto the image.
 import numpy as np
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 
 
-def report_image(full_filename, obj_result, health_result):
+def report_image(full_filename, obj_result, health_result, dest_dir):
+    """Creates and save image overlayed with bounding boxes and labels."""
     img = Image.open(full_filename)
     img.thumbnail((512,512), Image.ANTIALIAS) # rescale image to be smaller than max size
     image_with_boxes = draw_boxes(
-    np.array(img), np.array(obj_result["detection_boxes"]), obj_result["detection_scores"], health_result)
+    np.array(img), obj_result, health_result)
 
-    dest_fp = save_image(image_with_boxes, full_filename.split('/')[-1])
+    dest_fp = save_image(image_with_boxes, full_filename.split('/')[-1], dest_dir)
     return dest_fp
 
 
-##### helper visualization functions 
-def save_image(image, image_filename):
-    dest_fp = f"web_app/static/img/results/{image_filename}"
+
+##### HELPER FUNCTIONS FOR VIZ #####
+
+
+def save_image(image, image_filename, dest_dir):
+    dest_fp = f"{dest_dir}/{image_filename}"
 
     plt.figure(figsize=(20, 15))
     plt.grid(False)
@@ -34,11 +35,14 @@ def save_image(image, image_filename):
 
 
 
-def draw_boxes(image, boxes, scores, health_result, max_boxes=10, min_score=0.1):
+def draw_boxes(image, obj_result, health_result, max_boxes=100, min_score=0.1):
     """Overlay labeled boxes on an image with formatted scores and label names."""
 
     font = ImageFont.load_default()
 
+    boxes = np.array(obj_result['detection_boxes'])
+    scores = obj_result['detection_scores']
+    
     for i in range(min(boxes.shape[0], max_boxes)):
         if scores[i] >= min_score:
             ymin, xmin, ymax, xmax = tuple(boxes[i])

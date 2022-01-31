@@ -8,10 +8,10 @@
 <br>
 <div class='text-center report'>
     <figure>
-        <img src="static/img/results/{{ input_image }}" width="50%">
+        <img src="{{ image_fp }}" width="50%">
         <figcaption class='caption'>Percent values on the image indicate prediction confidence score. </figcaption>
     </figure>
-    <h2>Analysis</h2>
+    <h2>Summary</h2>
     {% if counts['bees'] == 0%}
         <p>No bees were detected from your image.</p>
     {% else %}
