@@ -21,6 +21,18 @@ def report_image(full_filename, obj_result, health_result):
 
 
 ##### helper visualization functions 
+def save_image(image, image_filename):
+    dest_fp = f"web_app/static/img/results/{image_filename}"
+
+    plt.figure(figsize=(20, 15))
+    plt.grid(False)
+    plt.axis('off')
+    plt.imshow(image)
+    plt.savefig(dest_fp, bbox_inches='tight', pad_inches = 0)
+
+    return dest_fp
+
+
 
 def draw_boxes(image, boxes, scores, health_result, max_boxes=10, min_score=0.1):
     """Overlay labeled boxes on an image with formatted scores and label names."""
@@ -30,11 +42,15 @@ def draw_boxes(image, boxes, scores, health_result, max_boxes=10, min_score=0.1)
     for i in range(min(boxes.shape[0], max_boxes)):
         if scores[i] >= min_score:
             ymin, xmin, ymax, xmax = tuple(boxes[i])
-            display_str = "{}: {}%".format(health_result['label'][i],
-                                         int(100 * health_result['confidence'][i]))
+
+            # if bee is healthy, don't attach label on the box, and box color is green.
             if health_result['label'][i] == 'healthy':
+                display_str = None
                 color = 'green'
+            
             else:
+                display_str = "{}: {}%".format(health_result['label'][i],
+                                         int(100 * health_result['confidence'][i]))
                 color = 'red'
 
             image_pil = Image.fromarray(np.uint8(image)).convert("RGB")
@@ -51,16 +67,6 @@ def draw_boxes(image, boxes, scores, health_result, max_boxes=10, min_score=0.1)
     return image
 
 
-def save_image(image, image_filename):
-    dest_fp = f"web_app/static/img/results/{image_filename}"
-
-    plt.figure(figsize=(20, 15))
-    plt.grid(False)
-    plt.axis('off')
-    plt.imshow(image)
-    plt.savefig(dest_fp, bbox_inches='tight', pad_inches = 0)
-
-    return dest_fp
 
 
 def draw_bounding_box_on_image(image,
@@ -70,7 +76,7 @@ def draw_bounding_box_on_image(image,
                                xmax,
                                color,
                                font,
-                               thickness=4,
+                               thickness=2,
                                display_str_list=()):
     """Adds a bounding box to an image."""
     draw = ImageDraw.Draw(image)
@@ -82,26 +88,30 @@ def draw_bounding_box_on_image(image,
             width=thickness,
             fill=color)
 
-    # If the total height of the display strings added to the top of the bounding
-    # box exceeds the top of the image, stack the strings below the bounding box
-    # instead of above.
-    display_str_heights = [font.getsize(ds)[1] for ds in display_str_list]
-    # Each display_str has a top and bottom margin of 0.05x.
-    total_display_str_height = (1 + 2 * 0.05) * sum(display_str_heights)
-
-    if top > total_display_str_height:
-        text_bottom = top
+    # don't display label on image if bees are healthy
+    if display_str_list[0] == None:
+        pass
     else:
-        text_bottom = top + total_display_str_height
-    # Reverse list and print from bottom to top.
-    for display_str in display_str_list[::-1]:
-        text_width, text_height = font.getsize(display_str)
-        margin = np.ceil(0.05 * text_height)
-        draw.rectangle([(left, text_bottom - text_height - 2 * margin),
-                        (left + text_width, text_bottom)],
-                       fill=color)
-        draw.text((left + margin, text_bottom - text_height - margin),
-                  display_str,
-                  fill="black",
-                  font=font)
-        text_bottom -= text_height - 2 * margin
+        # If the total height of the display strings added to the top of the bounding
+        # box exceeds the top of the image, stack the strings below the bounding box
+        # instead of above.
+        display_str_heights = [font.getsize(ds)[1] for ds in display_str_list]
+        # Each display_str has a top and bottom margin of 0.05x.
+        total_display_str_height = (1 + 2 * 0.05) * sum(display_str_heights)
+
+        if top > total_display_str_height:
+            text_bottom = top
+        else:
+            text_bottom = top + total_display_str_height
+        # Reverse list and print from bottom to top.
+        for display_str in display_str_list[::-1]:
+            text_width, text_height = font.getsize(display_str)
+            margin = np.ceil(0.05 * text_height)
+            draw.rectangle([(left, text_bottom - text_height - 2 * margin),
+                            (left + text_width, text_bottom)],
+                        fill=color)
+            draw.text((left + margin, text_bottom - text_height - margin),
+                    display_str,
+                    fill="black",
+                    font=font)
+            text_bottom -= text_height - 2 * margin

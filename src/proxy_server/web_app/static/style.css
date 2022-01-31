@@ -18,3 +18,17 @@ body {
 .report {
     font-size: 20px;
 }
+
+.healthy-report {
+    color: green;
+}
+
+.unhealthy-report {
+    color: red;
+}
+
+.caption {
+    font-style: italic;
+    color: grey;
+    font-size: 15px;
+}

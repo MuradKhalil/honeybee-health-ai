@@ -21,18 +21,21 @@ def index():
 def about():
     return render_template("about.html")
 
-@app.route("/predict", methods = ['POST'])
+@app.route("/predict", methods = ['POST', 'GET'])
 def make_prediction():
 
-    # load and save input image file
-    f = request.files['input_image']
-    if f.filename == '':
-        session['error_message'] = 'Please select an image file.'
-        return redirect(url_for('index'))
-    
-    filename = f"{f.filename.split('.')[0]}_{uuid.uuid4().hex}.{f.filename.split('.')[-1]}" 
-    full_filename = f"web_app/static/img/uploads/{filename}" 
-    f.save(full_filename)
+    if request.method == "POST":
+        # load and save input image file
+        f = request.files['input_image']
+        if f.filename == '':
+            session['error_message'] = 'Please select an image file.'
+            return redirect(url_for('index'))
+            
+        filename = f"{f.filename.split('.')[0]}_{uuid.uuid4().hex}.{f.filename.split('.')[-1]}" 
+        full_filename = f"web_app/static/img/uploads/{filename}" 
+        f.save(full_filename)
+    else:
+        full_filename = "web_app/static/img/beehive_demo.jpg" 
 
     # call bee detection model server to get bee detection box results
     r = requests.post('http://192.168.1.10:8000/predict', files={'file': (full_filename, open(full_filename, 'rb'))})
@@ -49,8 +52,8 @@ def make_prediction():
             # create dummy health output json
         health_labels = ["healthy", "varroa beetles", "ant problems", "hive being robbed", "missing queen"]
         health_result = {
-            'label': np.random.choice(health_labels, size = len(obj_result['detection_scores']), p=[0.7, 0.1, 0.1, 0.05, 0.05]).tolist(),
-            'confidence': np.random.uniform(size=len(obj_result['detection_scores'])).tolist()
+            'label': np.random.choice(health_labels, size = len(obj_result['detection_scores']), p=[0.8, 0.05, 0.05, 0.05, 0.05]).tolist(),
+            'confidence': np.random.uniform(low=0.2, high=1, size=len(obj_result['detection_scores'])).tolist()
         }
     else:
         health_result = {'label': [],
@@ -77,3 +80,10 @@ def make_prediction():
 
 
     return render_template("report.html", input_image = dest_fp.split('/')[-1], result = health_result, counts = counts)
+
+
+
+@app.route("/predict-demo")
+def make_prediction_demo():
+
+    return redirect(url_for('make_prediction'))
