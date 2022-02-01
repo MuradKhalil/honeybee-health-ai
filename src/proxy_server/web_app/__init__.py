@@ -1,16 +1,11 @@
 from flask import Flask
+from flask_session import Session
+
 
 app = Flask(__name__) # create app instance
+sess = Session()
+app.secret_key = 'gaeirogrioghogjfi'
+app.config['SESSION_TYPE'] = 'filesystem'
 
-# https://stackoverflow.com/a/50361552/10012842
-# def create_app(config_class=Config):
-#     app = Flask(__name__)
-#     # app.config.from_object(config_class)
-#     # db.init_app(app)
-#     # migrate.init_app(app, db)
-#     # ... register blueprints, configure logging etc.
-#     with app.app_context():
-#         from . import routes
-#     return app
 
 import web_app.routes # import webapp routes

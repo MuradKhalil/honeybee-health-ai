@@ -1,10 +1,34 @@
 {% extends "layout.html" %}
 
+{% block heading %}
+📝 Your Hive Health Report
+{% endblock %}
 
 {% block body %}
 <br>
-<div class='text-center'>
-    <img src="static/img/uploads/{{ input_image }}" width="50%">
+<div class='text-center report'>
+    <figure>
+        <img src="{{ image_fp }}" width="50%">
+        <figcaption class='caption'>Percent values on the image indicate prediction confidence score. </figcaption>
+    </figure>
+    <h2>Summary</h2>
+    {% if counts['bees'] == 0%}
+        <p>No bees were detected from your image.</p>
+    {% else %}
+        <p><b>{{ counts['bees'] }}</b> bees were detected from the image.
+        <br><span class='healthy-report'><b>{{ counts['healthy'] }} </b> are healthy bees. ({{ "%.1f"| format(100*counts['healthy'] / counts['bees']) }}% of bees)</span>
+        {% if counts['varroa beetles'] > 0 %}<br><span class='unhealthy-report'><b>{{ counts['varroa beetles'] }}</b> bees have varroa beetles. ({{ "%.1f"| format(100*counts['varroa beetles'] / counts['bees']) }}% of bees)</span> {% endif %}
+        {% if counts['ant problems'] > 0 %}<br><span class='unhealthy-report'><b>{{ counts['ant problems'] }}</b> bees show ant problems. ({{ "%.1f"| format(100*counts['ant problems'] / counts['bees']) }}% of bees)</span>{% endif %}
+        {% if counts['hive being robbed'] > 0 %}<br><span class='unhealthy-report'><b>{{ counts['hive being robbed'] }}</b> bees show hive is being robbed. ({{ "%.1f"| format(100*counts['hive being robbed'] / counts['bees']) }}% of bees)</span>{% endif %}
+        {% if counts['missing queen'] > 0 %}<br><span class='unhealthy-report'><b>{{ counts['missing queen'] }}</b> bees show that the queen bee is missing. ({{ "%.1f"| format(100*counts['missing queen'] / counts['bees']) }}% of bees)</span>{% endif %}
+        </p>
+    {% endif %}
+
+    <br>
+    
+    <a href="/" class="btn btn-lg btn-warning">Try another image!</a>
+    <br><br><br><br>
+
 </div>
-<p>{{ result }}</p>
+
 {% endblock %}

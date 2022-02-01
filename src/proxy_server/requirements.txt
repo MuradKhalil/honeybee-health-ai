@@ -1,4 +1,9 @@
-Flask==1.0.2
-gunicorn==19.9.0
+Flask
+gunicorn
 requests
 uuid
+matplotlib
+numpy
+pillow
+flask-session
+python-dotenv
