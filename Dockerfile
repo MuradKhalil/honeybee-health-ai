@@ -11,7 +11,7 @@ COPY data/06_models/bee_health_model data/06_models/bee_health_model
 COPY app.py .
 
 # Step 5: Expose the port FastAPI is running on
-EXPOSE 8080
+EXPOSE 7000
 
 # Step 6: Run FastAPI
-CMD ["uvicorn", "app:app", "--host=0.0.0.0", "--port=8080"]
+CMD ["uvicorn", "app:app", "--host=0.0.0.0", "--port=7000"]

@@ -27,12 +27,11 @@ def generate_y(metadata, ids):
     df.sort_values(by='file')
 
     y_keys = {
-        "healthy":np.array([1, 0, 0, 0, 0, 0]),
-        "few varrao, hive beetles":np.array([0, 1, 0, 0, 0, 0]),
-        "Varroa, Small Hive Beetles":np.array([0, 0, 1, 0, 0, 0]),
-        "ant problems":np.array([0, 0, 0, 1, 0, 0]),
-        "hive being robbed":np.array([0, 0, 0, 0, 1, 0]),
-        "missing queen":np.array([0, 0, 0, 0, 0, 1])
+        "healthy":np.array([1, 0, 0, 0, 0]),
+        "varrao mite, hive beetles":np.array([0, 1, 0, 0, 0]),
+        "ant problems":np.array([0, 0, 1, 0, 0]),
+        "hive being robbed":np.array([0, 0, 0, 1, 0]),
+        "missing queen":np.array([0, 0, 0, 0, 1])
     }
 
     y = [y_keys[i] for i in df['health']]
@@ -83,7 +82,7 @@ def train_model(X_train, y_train) -> keras.Model:
         layers.Flatten(),
         layers.Dense(200, activation='relu'),
         layers.Dropout(.2),
-        layers.Dense(6, activation='softmax')
+        layers.Dense(5, activation='softmax')
     ])
 
     model.compile(

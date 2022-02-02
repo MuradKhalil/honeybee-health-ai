@@ -20,3 +20,4 @@ tensorflow
 scikit-learn
 pandas
 kedro-viz
+matplotlib==3.5.0
