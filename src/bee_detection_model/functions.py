@@ -11,15 +11,16 @@ def preprocess_image(file, max_size=(1028, 1028)):
     # image_raw = tf.keras.preprocessing.image.img_to_array(image_raw)
     image_numpy = np.array(image_raw)
     img_tensor = tf.convert_to_tensor(image_numpy, dtype=tf.uint8)
-    converted_img  = tf.image.convert_image_dtype(img_tensor, tf.float32)[tf.newaxis, ...]
-    return converted_img
+    
+    return img_tensor
 
 
 def run_detector(detector, file):
     img = preprocess_image(file)
+    img_scaled = tf.image.convert_image_dtype(img, tf.float32)[tf.newaxis, ...]
 
     start_time = time.time()
-    result = detector(img)
+    result = detector(img_scaled)
     end_time = time.time()
 
     result = {key:value.numpy() for key,value in result.items()}
