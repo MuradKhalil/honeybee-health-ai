@@ -2,16 +2,26 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 from tensorflow import keras
-from fastapi import FastAPI
+from fastapi import FastAPI, File
 from pydantic import BaseModel
 from typing import List
+from PIL import Image
+from io import BytesIO
 from typing import Any, Dict
 from fastapi import FastAPI
 
 
 class Prediction(BaseModel):
-  likely_class: str
-  confidence: float
+  label: List[str] = []
+  confidence: List[float] = []
+
+
+def preprocess_and_save_input_image(img, input_filename, max_size=(1028, 1028)):
+    image_raw = Image.open(BytesIO(img)).convert('RGB')
+    image_raw.thumbnail(max_size, Image.ANTIALIAS) # rescale image to be smaller than max size
+    image_raw.save(input_filename)
+
+
 
 def read_img(path):
     img = tf.io.read_file(path)
@@ -32,6 +42,8 @@ def crop_bee(detection_box, img):
     
     return img
 
+
+
 app = FastAPI()
 
 @app.on_event("startup")
@@ -41,13 +53,18 @@ def load_model():
 
 @app.get('/')
 def index():
-    return {'message': 'This is the homepage of the API'}
+    return {'message': 'Bee health model is online.'}
 
 @app.post('/predict', response_model=Prediction)
-async def prediction_route(request: Dict[Any, Any]):
+async def prediction_route(file: bytes = File(...), detection_boxes: List[List[float]] = []):
     
-    bee_image = read_img(request['file'])
-    detection_boxes = request['detection_boxes']
+    bee_image = read_img(file)
+
+    # print(bee_image)
+
+    # return {'label': [], 'confidence': []}
+
+
     input_shape = model.layers[0].input_shape
 
     bees = []
@@ -81,4 +98,4 @@ async def prediction_route(request: Dict[Any, Any]):
             .map(mydict) \
             .tolist()
 
-        return {'label': likely_class, 'confidence': confidence}
+        return {'label': classes, 'confidence': confidences}
