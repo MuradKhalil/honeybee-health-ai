@@ -2,29 +2,28 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 from tensorflow import keras
-from fastapi import FastAPI, File
+from fastapi import FastAPI, File, Form
 from pydantic import BaseModel
 from typing import List
 from PIL import Image
 from io import BytesIO
+import json
 
 
 class Prediction(BaseModel):
-  label: List[str] = []
-  confidence: List[float] = []
+    label: List[str] = []
+    confidence: List[float] = []
 
 
-def preprocess_and_save_input_image(img, input_filename, max_size=(1028, 1028)):
-    image_raw = Image.open(BytesIO(img)).convert('RGB')
+def preprocess_image(file, max_size=(1028, 1028)):
+    image_raw = Image.open(BytesIO(file)).convert('RGB')
     image_raw.thumbnail(max_size, Image.ANTIALIAS) # rescale image to be smaller than max size
-    image_raw.save(input_filename)
+    # image_raw = tf.keras.preprocessing.image.img_to_array(image_raw)
+    image_numpy = np.array(image_raw)
+    img_tensor = tf.convert_to_tensor(image_numpy, dtype=tf.uint8)
+    
+    return img_tensor
 
-
-
-def read_img(path):
-    img = tf.io.read_file(path)
-    img = tf.image.decode_jpeg(img, channels=3)
-    return img
 
 def crop_bee(detection_box, img):    
     
@@ -54,14 +53,10 @@ def index():
     return {'message': 'Bee health model is online.'}
 
 @app.post('/predict', response_model=Prediction)
-async def prediction_route(file: bytes = File(...), detection_boxes: List[List[float]] = []):
+async def make_prediction(file: bytes = File(...), detection_boxes: str = Form(...)):
     
-    bee_image = read_img(file)
-
-    # print(bee_image)
-
-    # return {'label': [], 'confidence': []}
-
+    beehive_image = preprocess_image(file)
+    detection_boxes = json.loads(detection_boxes)
 
     input_shape = model.layers[0].input_shape
 
@@ -70,7 +65,7 @@ async def prediction_route(file: bytes = File(...), detection_boxes: List[List[f
     confidences = []
 
     for bee_box in detection_boxes:
-        cropped_bee_data = crop_bee(bee_box, bee_image)
+        cropped_bee_data = crop_bee(bee_box, beehive_image)
         cropped_bee_image = keras.utils.array_to_img(cropped_bee_data)
         cropped_bee_image_resized = cropped_bee_image.resize((input_shape[1], input_shape[2]))
         numpy_image = np.array(cropped_bee_image_resized).reshape((input_shape[1], input_shape[2], input_shape[3]))
