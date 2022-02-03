@@ -48,13 +48,13 @@ def draw_boxes(image, obj_result, health_result, max_boxes=100, min_score=0.1):
             ymin, xmin, ymax, xmax = tuple(boxes[i])
 
             # if bee is healthy, don't attach label on the box, and box color is green.
-            if health_result['label'][i] == 'healthy':
+            if health_result['predictions'][i] == 'healthy':
                 display_str = None
                 color = 'green'
             
             else:
-                display_str = "{}: {}%".format(health_result['label'][i],
-                                         int(100 * health_result['confidence'][i]))
+                display_str = "{}: {}%".format(health_result['predictions'][i],
+                                         int(100 * health_result['confidence_scores'][i]))
                 color = 'red'
 
             image_pil = Image.fromarray(np.uint8(image)).convert("RGB")

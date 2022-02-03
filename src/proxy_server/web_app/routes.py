@@ -64,22 +64,21 @@ def make_prediction():
 
     # if bee detected, call bee health model server to get health predictions
     if bees_count > 0:
-        # health_model_request = requests.post(HEALTH_MODEL_URL, files={'file': (full_filename, open(full_filename, 'rb'))})
-        # health_result = health_model_request.json()
-
         # call bee health model server
-        # input: {'file': hive_image, 'result': filtered_bee}
-        # output: {'label': ['healthy', 'varroa beetle', ...], 'confidence': [0.3456, 0.5352, ...]}
-        
+        print(str(obj_result['detection_boxes']))
+        health_model_request = requests.post(HEALTH_MODEL_URL, files={'file': (full_filename, open(full_filename, 'rb'))}, data = {'detection_boxes': str(obj_result['detection_boxes'])})
+        health_result = health_model_request.json()
+
         # create dummy health output json
-        health_labels = ["healthy", "varroa beetles", "ant problems", "hive being robbed", "missing queen"]
-        health_result = {
-            'label': np.random.choice(health_labels, size = len(obj_result['detection_scores']), p=[0.8, 0.05, 0.05, 0.05, 0.05]).tolist(),
-            'confidence': np.random.uniform(low=0.2, high=1, size=len(obj_result['detection_scores'])).tolist()
-        }
+        # health_labels = ["healthy", "varroa beetles", "ant problems", "hive being robbed", "missing queen"]
+        # health_result = {
+        #     'label': np.random.choice(health_labels, size = len(obj_result['detection_scores']), p=[0.8, 0.05, 0.05, 0.05, 0.05]).tolist(),
+        #     'confidence': np.random.uniform(low=0.2, high=1, size=len(obj_result['detection_scores'])).tolist()
+        # }
+
     else:
-        health_result = {'label': [],
-                        'confidence': []}
+        health_result = {'predictions': [],
+                        'confidence_scores': []}
 
 
     # create visualization report
@@ -88,11 +87,11 @@ def make_prediction():
     # count number of bees for each label
     counts = {
         'bees': bees_count,
-        'healthy': health_result['label'].count("healthy"),
-        'varroa beetles': health_result['label'].count("varroa beetles"),
-        'ant problems': health_result['label'].count("ant problems"),
-        'hive being robbed': health_result['label'].count("hive being robbed"),
-        'missing queen': health_result['label'].count("missing queen"),
+        'healthy': health_result['predictions'].count("healthy"),
+        'varroa beetles': health_result['predictions'].count("varroa beetles"),
+        'ant problems': health_result['predictions'].count("ant problems"),
+        'hive being robbed': health_result['predictions'].count("hive being robbed"),
+        'missing queen': health_result['predictions'].count("missing queen"),
     }
 
     print(obj_result)
