@@ -65,7 +65,6 @@ def make_prediction():
     # if bee detected, call bee health model server to get health predictions
     if bees_count > 0:
         # call bee health model server
-        print(str(obj_result['detection_boxes']))
         health_model_request = requests.post(HEALTH_MODEL_URL, files={'file': (full_filename, open(full_filename, 'rb'))}, data = {'detection_boxes': str(obj_result['detection_boxes'])})
         health_result = health_model_request.json()
 
@@ -94,11 +93,11 @@ def make_prediction():
         'missing queen': health_result['predictions'].count("missing queen"),
     }
 
-    print(obj_result)
-    print('')
-    print(health_result)
-    print('')
-    print(counts)
+    # print(obj_result)
+    # print('')
+    # print(health_result)
+    # print('')
+    # print(counts)
 
     return render_template("report.html", image_fp = "/".join(dest_fp.split('/')[1:]), result = health_result, counts = counts)
 
