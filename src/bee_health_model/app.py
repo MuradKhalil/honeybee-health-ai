@@ -4,7 +4,7 @@ import tensorflow as tf
 from tensorflow import keras
 from fastapi import FastAPI, File, Form
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 from PIL import Image
 from io import BytesIO
 import json
@@ -51,7 +51,53 @@ def crop_bee(detection_box, img):
     return img
 
 
+def predict_health(model, bee_image):
+    input_shape = model.layers[0].input_shape
 
+    bee_image = keras.utils.array_to_img(bee_image)
+    bee_image_resized = bee_image.resize((input_shape[1], input_shape[2]))
+    numpy_image = np.array(bee_image_resized).reshape((input_shape[1], input_shape[2], input_shape[3]))
+    prediction_array = np.array([numpy_image])
+    
+    predictions = model.predict(prediction_array)
+    prediction = predictions[0]
+
+    predicted_class = [np.argmax(prediction)]
+    confidence_score = [np.amax(prediction)]
+
+    return predicted_class, confidence_score
+
+
+
+def crop_all_bees(detection_boxes, img):
+    cropped_bees_array = []
+    for bee_box in detection_boxes:
+        cropped_bee_array = crop_bee(bee_box, img)
+        cropped_bees_array.append(cropped_bee_array)
+    return cropped_bees_array
+
+
+def batch_predict_health(model, bees_array):
+    input_shape = model.layers[0].input_shape
+    bees_batch_array = []
+
+    for bee in bees_array:
+        bee_image = keras.utils.array_to_img(bee)
+        bee_image_resized = bee_image.resize((input_shape[1], input_shape[2]))
+        bee_image_arr = np.array(bee_image_resized).reshape((input_shape[1], input_shape[2], input_shape[3]))
+        bee_image_arr = np.expand_dims(bee_image_arr, axis=0)
+        bees_batch_array.append(bee_image_arr)
+
+    bees_batch_array = np.vstack(np.array(bees_batch_array))
+
+    predictions = model.predict(bees_batch_array)
+
+    predicted_classes = np.argmax(predictions, axis=1)
+    confidence_scores = np.amax(predictions, axis=1)
+
+    return predicted_classes, confidence_scores    
+
+    
 
 
 
@@ -64,6 +110,7 @@ def load_model():
 
 
 
+
 @app.get('/')
 def index():
     return {'message': 'Bee health model is online.'}
@@ -71,36 +118,25 @@ def index():
 
 
 @app.post('/predict', response_model=Prediction)
-async def make_prediction(file: bytes = File(...), detection_boxes: str = Form(...)):
+async def make_prediction(file: bytes = File(...), detection_boxes: Optional[str] = Form(None)):
     
-    beehive_image = preprocess_image(file)
-    detection_boxes = json.loads(detection_boxes)
-    print(detection_boxes)
+    input_image = preprocess_image(file)
 
-    input_shape = model.layers[0].input_shape
-
-    bees = []
-    predicted_classes = []
-    confidence_scores = []
-
-    for bee_box in detection_boxes:
-        cropped_bee_data = crop_bee(bee_box, beehive_image)
-        
-        cropped_bee_image = keras.utils.array_to_img(cropped_bee_data)
-        cropped_bee_image_resized = cropped_bee_image.resize((input_shape[1], input_shape[2]))
-        numpy_image = np.array(cropped_bee_image_resized).reshape((input_shape[1], input_shape[2], input_shape[3]))
-        prediction_array = np.array([numpy_image])
-        
-        predictions = model.predict(prediction_array)
-        prediction = predictions[0]
-
-        predicted_class = np.argmax(prediction)
-        confidence_score = np.amax(prediction)
-
-        bees.append(cropped_bee_image)
-        predicted_classes.append(predicted_class)
-        confidence_scores.append(confidence_score)
+    # if no detection boxes input given, predict on the entire image assuming that the image is already a cropped bee
+    # this is only used when testing model performance directly with FastAPI model server Swagger UI
+    if detection_boxes == None:
+        predicted_classes, confidence_scores = predict_health(model, input_image)
     
+
+    # if detection box input provided, crop bees from image and then batch predict
+    else:
+        detection_boxes = json.loads(detection_boxes)
+
+        cropped_bees_array = crop_all_bees(detection_boxes, input_image)
+        predicted_classes, confidence_scores = batch_predict_health(model, cropped_bees_array)
+        confidence_scores = confidence_scores.tolist()
+
+
     predicted_classes = pd.Series(predicted_classes) \
         .map(label_dict) \
         .tolist()
