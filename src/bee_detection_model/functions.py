@@ -2,38 +2,31 @@ import tensorflow as tf
 from PIL import Image
 from io import BytesIO
 import time
+import numpy as np
 
 
-
-
-def preprocess_and_save_input_image(img, input_filename, max_size=(1028, 1028)):
-    image_raw = Image.open(BytesIO(img)).convert('RGB')
+def preprocess_image(file, max_size=(1028, 1028)):
+    image_raw = Image.open(BytesIO(file)).convert('RGB')
     image_raw.thumbnail(max_size, Image.ANTIALIAS) # rescale image to be smaller than max size
-    image_raw.save(input_filename)
+    # image_raw = tf.keras.preprocessing.image.img_to_array(image_raw)
+    image_numpy = np.array(image_raw)
+    img_tensor = tf.convert_to_tensor(image_numpy, dtype=tf.uint8)
+    converted_img  = tf.image.convert_image_dtype(img_tensor, tf.float32)[tf.newaxis, ...]
+    return converted_img
 
 
+def run_detector(detector, file):
+    img = preprocess_image(file)
 
-
-def load_img(path):
-    img = tf.io.read_file(path)
-    img = tf.image.decode_jpeg(img, channels=3)
-    return img
-
-
-
-
-def run_detector(detector, path: str):
-    img = load_img(path)
-    converted_img  = tf.image.convert_image_dtype(img, tf.float32)[tf.newaxis, ...]
     start_time = time.time()
-    result = detector(converted_img)
+    result = detector(img)
     end_time = time.time()
 
     result = {key:value.numpy() for key,value in result.items()}
 
     print("Found %d objects." % len(result["detection_scores"]))
     print("Inference time: ", end_time-start_time)
-
+    print(result['detection_class_entities'])
     return result
 
 
