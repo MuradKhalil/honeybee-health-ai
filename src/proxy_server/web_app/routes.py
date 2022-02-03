@@ -93,11 +93,11 @@ def make_prediction():
         'missing queen': health_result['predictions'].count("missing queen"),
     }
 
-    # print(obj_result)
-    # print('')
-    # print(health_result)
-    # print('')
-    # print(counts)
+    print("BEE DETECTION MODEL RESULT")
+    print(obj_result)
+    print('')
+    print("BEE HEALTH MODEL RESULT")
+    print(health_result)
 
     return render_template("report.html", image_fp = "/".join(dest_fp.split('/')[1:]), result = health_result, counts = counts)
 
