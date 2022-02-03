@@ -7,8 +7,6 @@ from pydantic import BaseModel
 from typing import List
 from PIL import Image
 from io import BytesIO
-from typing import Any, Dict
-from fastapi import FastAPI
 
 
 class Prediction(BaseModel):
