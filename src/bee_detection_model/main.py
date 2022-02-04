@@ -3,7 +3,9 @@ import uvicorn
 import tensorflow_hub as hub
 from pydantic import BaseModel
 from typing import List
-from functions import run_detector, filter_bees, preprocess_and_save_input_image
+from functions import run_detector, filter_bees
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
 
 # configs
 module_handle = "https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1"
@@ -33,10 +35,19 @@ def index():
     return {'message': 'Bee detection model is online.'}
 
 
+# @app.post("/predict", response_model=Prediction)
+# async def make_prediction(file: bytes = File(...)):
+#     preprocess_and_save_input_image(file, filename)
+#     result = run_detector(model, filename)
+#     result_bees = filter_bees(result)
+
+#     return result_bees
+
+
+
 @app.post("/predict", response_model=Prediction)
 async def make_prediction(file: bytes = File(...)):
-    preprocess_and_save_input_image(file, filename)
-    result = run_detector(model, filename)
+    result = run_detector(model, file)
     result_bees = filter_bees(result)
 
     return result_bees
