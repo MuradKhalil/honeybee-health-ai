@@ -32,9 +32,7 @@ def preprocess_image(file, max_size=(1028, 1028)):
     image_raw.thumbnail(max_size, Image.ANTIALIAS) # rescale image to be smaller than max size
     # image_raw = tf.keras.preprocessing.image.img_to_array(image_raw)
     image_numpy = np.array(image_raw)
-    img_tensor = tf.convert_to_tensor(image_numpy, dtype=tf.uint8)
-    
-    return img_tensor
+    return image_numpy
 
 
 def crop_bee(detection_box, img):    
@@ -57,11 +55,12 @@ def predict_health(model, bee_image):
 
     bee_image = keras.utils.array_to_img(bee_image)
     bee_image_resized = bee_image.resize((input_shape[1], input_shape[2]))
-    numpy_image = np.array(bee_image_resized).reshape((input_shape[1], input_shape[2], input_shape[3]))
+    
+    numpy_image = np.array(bee_image_resized)/255.0
+
     prediction_array = np.array([numpy_image])
     
     predictions = model.predict(prediction_array)
-    print(predictions)
     prediction = predictions[0]
 
     predicted_class = [np.argmax(prediction)]
@@ -86,7 +85,7 @@ def batch_predict_health(model, bees_array):
     for bee in bees_array:
         bee_image = keras.utils.array_to_img(bee)
         bee_image_resized = bee_image.resize((input_shape[1], input_shape[2]))
-        bee_image_arr = np.array(bee_image_resized).reshape((input_shape[1], input_shape[2], input_shape[3]))
+        bee_image_arr = np.array(bee_image_resized)/255.0
         bee_image_arr = np.expand_dims(bee_image_arr, axis=0)
         bees_batch_array.append(bee_image_arr)
 
@@ -142,5 +141,9 @@ async def make_prediction(file: bytes = File(...), detection_boxes: Optional[str
     predicted_classes = pd.Series(predicted_classes) \
         .map(label_dict) \
         .tolist()
+
+    # log results
+    print(f'Predictions: {predicted_classes}')
+    print(f'Confidence Scores: {confidence_scores}')
 
     return {'predictions': predicted_classes, 'confidence_scores': confidence_scores}
