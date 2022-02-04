@@ -1,5 +1,5 @@
-# src/proxy_server/web_app/static/img/uploads/*
-# src/proxy_server/web_app/static/img/results/*
+src/proxy_server/web_app/static/img/uploads/*
+src/proxy_server/web_app/static/img/results/*
 
 ##########################
 # KEDRO PROJECT
