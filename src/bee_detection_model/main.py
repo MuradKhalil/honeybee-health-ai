@@ -50,6 +50,9 @@ async def make_prediction(file: bytes = File(...)):
     result = run_detector(model, file)
     result_bees = filter_bees(result)
 
+    # log results
+    print(result_bees)
+
     return result_bees
 
 

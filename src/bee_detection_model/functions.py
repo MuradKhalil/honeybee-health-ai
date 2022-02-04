@@ -25,9 +25,8 @@ def run_detector(detector, file):
 
     result = {key:value.numpy() for key,value in result.items()}
 
-    print("Found %d objects." % len(result["detection_scores"]))
-    print("Inference time: ", end_time-start_time)
-    print(result['detection_class_entities'])
+    # print("Found %d objects." % len(result["detection_scores"]))
+    # print("Inference time: ", end_time-start_time)
     return result
 
 
