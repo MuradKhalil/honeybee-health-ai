@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+import tensorflow_addons as tfa
 from tensorflow import keras
 from fastapi import FastAPI, File, Form
 from pydantic import BaseModel
@@ -60,6 +61,7 @@ def predict_health(model, bee_image):
     prediction_array = np.array([numpy_image])
     
     predictions = model.predict(prediction_array)
+    print(predictions)
     prediction = predictions[0]
 
     predicted_class = [np.argmax(prediction)]
@@ -106,7 +108,7 @@ app = FastAPI()
 @app.on_event("startup")
 def load_model():
     global model
-    model = keras.models.load_model('saved_model')
+    model = keras.models.load_model('saved_model/bee_health_model_v2', custom_objects = {"f1_score": tfa.metrics.F1Score})
 
 
 
@@ -122,8 +124,8 @@ async def make_prediction(file: bytes = File(...), detection_boxes: Optional[str
     
     input_image = preprocess_image(file)
 
-    # if no detection boxes input given, predict on the entire image assuming that the image is already a cropped bee
-    # this is only used when testing model performance directly with FastAPI model server Swagger UI
+    # if no detection boxes input given, predict health on the entire image assuming that the input image is already a cropped bee image
+    # this is only used when testing model performance directly with FastAPI model server, Swagger UI
     if detection_boxes == None:
         predicted_classes, confidence_scores = predict_health(model, input_image)
     
