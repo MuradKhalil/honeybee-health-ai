@@ -57,7 +57,6 @@ def make_prediction():
 
     # call bee detection model server to get bee detection box results
     detection_model_request = requests.post(DETECTION_MODEL_URL, files={'file': (full_filename, open(full_filename, 'rb'))})
-    # os.remove(filename)
     obj_result = detection_model_request.json() # returns dictionary
     bees_count = len(obj_result['detection_scores'])
     
@@ -66,11 +65,10 @@ def make_prediction():
     # obj_result['detection_scores'] = [0.5, 0.4, 0.4, 0.5, 0.5]
     # obj_result['detection_boxes'] = [[0.0975261926651001, 0.17563913762569427, 0.4485897421836853, 0.4649205803871155], [0.554804265499115, 0.14176315069198608, 0.9436773657798767, 0.3210373520851135], [0.4719267189502716, 0.26815205812454224, 0.9059988260269165, 0.4377785325050354], [0.37106776237487793, 0.09278910607099533, 0.602453887462616, 0.28122249245643616], [0.048334911465644836, 0.0067466795444488525, 0.46502310037612915, 0.2812293469905853]]
     # bees_count = 5
-    ####
+    ###
 
     # if bee detected, call bee health model server to get health predictions
     if bees_count > 0:
-        print("About to call health model")
         # call bee health model server
         health_model_request = requests.post(HEALTH_MODEL_URL, files={'file': (full_filename, open(full_filename, 'rb'))}, data = {'detection_boxes': str(obj_result['detection_boxes'])})
         health_result = health_model_request.json()
