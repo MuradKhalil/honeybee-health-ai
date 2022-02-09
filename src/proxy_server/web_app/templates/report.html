@@ -17,7 +17,7 @@
     {% else %}
         <p><b>{{ counts['bees'] }}</b> bees were detected from the image.
         <br><span class='healthy-report'><b>{{ counts['healthy'] }} </b> are healthy bees. ({{ "%.1f"| format(100*counts['healthy'] / counts['bees']) }}% of bees)</span>
-        {% if counts['varroa beetles'] > 0 %}<br><span class='unhealthy-report'><b>{{ counts['varroa beetles'] }}</b> bees have varroa beetles. ({{ "%.1f"| format(100*counts['varroa beetles'] / counts['bees']) }}% of bees)</span> {% endif %}
+        {% if counts['varroa beetles'] > 0 %}<br><span class='unhealthy-report'><b>{{ counts['varroa beetles'] }}</b> bees have varroa mites or small hive beetles. ({{ "%.1f"| format(100*counts['varroa beetles'] / counts['bees']) }}% of bees)</span> {% endif %}
         {% if counts['ant problems'] > 0 %}<br><span class='unhealthy-report'><b>{{ counts['ant problems'] }}</b> bees show ant problems. ({{ "%.1f"| format(100*counts['ant problems'] / counts['bees']) }}% of bees)</span>{% endif %}
         {% if counts['hive being robbed'] > 0 %}<br><span class='unhealthy-report'><b>{{ counts['hive being robbed'] }}</b> bees show hive is being robbed. ({{ "%.1f"| format(100*counts['hive being robbed'] / counts['bees']) }}% of bees)</span>{% endif %}
         {% if counts['missing queen'] > 0 %}<br><span class='unhealthy-report'><b>{{ counts['missing queen'] }}</b> bees show that the queen bee is missing. ({{ "%.1f"| format(100*counts['missing queen'] / counts['bees']) }}% of bees)</span>{% endif %}
