@@ -1,0 +1,9 @@
+Flask
+gunicorn
+requests
+uuid
+matplotlib
+numpy
+pillow
+flask-session
+python-dotenv

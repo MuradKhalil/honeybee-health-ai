@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block script %}
+<script type="text/javascript" src="static/js/index.js"></script>
+{% endblock %}
+
+{% block heading %}
+🍯 Honeybee Health AI 🐝 
+{% endblock %}
+
+
+{% block body %}
+<div class="container py-5">
+  {% if error_message is not none %}
+    <div class="alert alert-danger" role="alert">
+      {{ error_message }}
+    </div>
+  {% endif %}
+
+
+  <!-- For demo purpose -->
+  <header class="text-white text-center">
+      <p class="lead mb-0">Input an image of your beehive to begin! </p>
+  </header>
+
+
+  <div class="row py-4">
+      <div class="col-lg-6 mx-auto">
+
+        <!-- Upload image input-->
+        <form method="post" action="{{ url_for('make_prediction') }}" enctype="multipart/form-data">
+          <input type="file" name="input_image" accept="image/png, image/jpeg" class="form-control form-control-lg">
+          <br>
+          <div class="d-grid gap-2 col-6 mx-auto">
+            <button type="submit" class="btn btn-warning btn-lg">Check my bee's health!</button>
+          </div>
+        </form>
+      
+        <div class="text-center">  
+          <br>
+          <a href="{{ url_for('make_prediction_demo') }}">Try out with an example image</a>
+        </div>
+
+      </div>
+  </div>
+</div>
+{% endblock %}

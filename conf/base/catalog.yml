@@ -3,6 +3,10 @@
 # Documentation for this file format can be found in "The Data Catalog"
 # Link: https://kedro.readthedocs.io/en/stable/05_data/01_data_catalog.html
 
+sample_hive_image:
+  type: pillow.ImageDataSet
+  filepath: data/01_raw/beehive/beehive.jpg
+
 
 sample_bee:
   type: bee_health_monitoring.extras.datasets.image_dataset.ImageDataSet

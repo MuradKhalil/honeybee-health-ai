@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block script %}
+<script type="text/javascript" src="static/js/index.js"></script>
+{% endblock %}
+
+
+{% block heading %}
+About
+{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+<h2>FAQs</h2><br>
+<h4>1. What do the health labels mean?</h4>
+<p>Our current bee health model is a multi-class classification model that predicts one out of five health status for a given bee image. Check out the resources below to understand better about what each health status means and how you can treat the problem.
+    <ol>
+        <li><b>healthy</b></li>
+        <li><b>varroa mites or small hive beetles</b></li>
+            <ul>
+                <li><a href="https://www.vita-europe.com/beehealth/diseases/varroa-mites/" target="_blank">Varroa mites</a></li>
+                <li><a href="https://www.extension.iastate.edu/smallfarms/managing-varroa-mites-honey-bee-colonies" target="_blank">Managing varroa mites in honeybee colonies</a></li>
+                <li><a href="https://agriculture.vic.gov.au/biosecurity/animal-diseases/honey-bee-pests-and-diseases/small-hive-beetle-a-beekeeping-pest" target="_blank">
+                    Small hive beetle - a beekeeping pest</a></li>
+            </ul>
+        <li><b>ant problems</b></li>
+            <ul>
+                <li><a href="https://www.honeybeesuite.com/ants-beehive-help-your-colony/" target="_blank">
+                Ants in your beehive? Here's how you can help your colony</a></li>
+                <li><a href="https://beekeepinglikeagirl.com/how-to-protect-your-bees-from-ants/" target="_blank">How to protect your bees from ants</a></li>
+            </ul>
+        <li><b>hive beeing robbed</b></li>
+            <ul>
+                <li><a href="https://schoolofbees.com/how-to-tell-if-your-hive-is-being-robbed/" target="_blank">
+                How to tell if your hive is being robbed</a></li>
+            </ul>
+        <li><b>missing queen</b></li>
+            <ul>
+                <li><a href="https://beekeepinglikeagirl.com/signs-your-colony-is-queenless/" target="_blank">
+                Signs your colony is queenless</a></li>
+            </ul>
+    </ol>
+<br>
+<h4>2. I want to learn more about how this web application works. </h4>
+Check out our GitHub repo <a href="https://github.com/MuradKhalil/bee_health_monitoring" target="_blank">here</a>!
+
+</p>
+</div>
+{% endblock %}
