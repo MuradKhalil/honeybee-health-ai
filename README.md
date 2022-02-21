@@ -1,122 +1,79 @@
-# Bee Health Monitoring
+# Honeybee Health AI
 
-## Overview
+## I. Overview
+Honeybee Health AI is a machine learning based web application that predicts health of the honeybees from beehive images. Our web application first runs a pre-trained object detection model to detect individual bees from the hive image, and then runs a convolutional neural network model we trained to predict the health of an individual bee. We built our ML product as microservices and deployed our containerized services to Google Cloud Platform (GCP) Cloud Run.
 
-This is your new Kedro project, which was generated using `Kedro 0.17.6`.
+You can visit our web application here: https://bee-proxy-server-7w6n2246cq-uk.a.run.app/
 
-Take a look at the [Kedro documentation](https://kedro.readthedocs.io) to get started.
+Click on the image below to watch the demo video of our web application:
+[![Demo Video](/docs/img/demo-img.png)](https://drive.google.com/file/d/1TxJjMI0vfpGa8npw1kpNu28kRoGX7zgj/view?usp=sharing "Demo Video")
 
-## Rules and guidelines
+## II. Machine Learning Models
+### 1. Bee Detection Model
+Bee detection model API: https://bee-detection-model-7w6n2246cq-uk.a.run.app/docs
 
-In order to get the best out of the template:
 
-* Don't remove any lines from the `.gitignore` file we provide
-* Make sure your results can be reproduced by following a [data engineering convention](https://kedro.readthedocs.io/en/stable/12_faq/01_faq.html#what-is-data-engineering-convention)
-* Don't commit data to your repository
-* Don't commit any credentials or your local configuration to your repository. Keep all your credentials and local configuration in `conf/local/`
+To detect individual bees from a beehive image, we used a pre-trained object detection model called [MobileNet V2](https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1), which is published by Google and was trained on 14.7M bounding boxes from 1.74M images with 600 object classes including "bee."
 
-## How to install dependencies
+### 2. Bee Health Model
+Bee health model API: https://bee-health-model-7w6n2246cq-uk.a.run.app/docs
 
-Declare any dependencies in `src/requirements.txt` for `pip` installation and `src/environment.yml` for `conda` installation.
+The model for predicting bee health has been trained on ~5000 single bee images with 5 target values: `healthy`, `varroa mites`, `ant problems`, `hive being robbed`, and `missing queen`. The data comes from the Kaggle platform and is in the form of images that have been cropped from a video file. The model achieves high predictive performance with metrics like acccuracy and f1 score being 0.97 and 0.90 respectively. While the performance is quite high, in this project it is important to control for false negative - reporting healthy bee while it is actually being infected.
 
-To install them, run:
 
-```
-kedro install
-```
 
-## How to run your Kedro pipeline
+## III. Microservices Architecture
+Honeybee Health AI consists of three microservices: **bee detection model server**, **bee health model server**, and **proxy server** to handle web requests.
 
-You can run your Kedro project with:
+Below is a diagram of how our microservices communicate via API to provide bee health predictions to honeybee farmers.
 
-```
-kedro run
-```
+![Microservices Diagram](docs/img/microservices-architecture.png)
+1. Honeybee farmer visits our website and submits a beehive image. 
+2. Proxy server sends the beehive image to the bee detection model server. 
+3. Bee detection model server detects individual bees from the beehive image and sends bounding box coordinates back to proxy server as JSON. 
+4. Proxy server then sends beehive information and bounding box coordinate information of the detected bees to bee health model server.
+5. Bee health model server predicts health for each cropped bee in the image, and sends back results to proxy server as JSON.
+6. Proxy server processes the results and provides a health report to the honeybee farmers in HTML.
 
-## How to test your Kedro project
 
-Have a look at the file `src/tests/test_run.py` for instructions on how to write your tests. You can run your tests as follows:
 
-```
-kedro test
-```
+## IV. Tutorial
+### 1. How to run servers locally
+#### Models (FastAPI)
+1. Navigate to `src/bee_detection_model` for bee detection model server, or `src/bee_health_model` for bee health model server. 
 
-To configure the coverage threshold, go to the `.coveragerc` file.
+2. In the local terminal, run: 
 
-## Project dependencies
+#### Proxy Server (Flask)
 
-To generate or update the dependency requirements for your project:
 
-```
-kedro build-reqs
-```
+`src/proxy_server`
 
-This will copy the contents of `src/requirements.txt` into a new file `src/requirements.in` which will be used as the source for `pip-compile`. You can see the output of the resolution by opening `src/requirements.txt`.
 
-After this, if you'd like to update your project requirements, please update `src/requirements.in` and re-run `kedro build-reqs`.
 
-[Further information about project dependencies](https://kedro.readthedocs.io/en/stable/04_kedro_project_setup/01_dependencies.html#project-specific-dependencies)
+### 2. How to build and run docker containers locally
 
-## How to work with Kedro and notebooks
+1. Navigate to the app directory and type: `./docker_run.sh`. This bash script will:
+    1. stop currently running Docker container if it already exists
+    2. build new Docker image using Dockerfile
+    3. create and run a Docker container using the built Docker image.
 
-> Note: Using `kedro jupyter` or `kedro ipython` to run your notebook provides these variables in scope: `context`, `catalog`, and `startup_error`.
->
-> Jupyter, JupyterLab, and IPython are already included in the project requirements by default, so once you have run `kedro install` you will not need to take any extra steps before you use them.
+2. To check whether Docker container is running properly (and to find out the name of the running container), type `docker ps`. If you see any error status, type `docker logs <NAME>` to fetch logs for the container. To inspect the insides of currently running container (aka navigate Docker container instance with CLI), type `docker exec -it <NAME> /bin/bash`.
 
-### Jupyter
-To use Jupyter notebooks in your Kedro project, you need to install Jupyter:
+3. Visit `localhost:8000` to test your application running on your local computer.
 
-```
-pip install jupyter
-```
+4. To stop the Docker container, type `docker stop <NAME>`. 
 
-After installing Jupyter, you can start a local notebook server:
+5. When you are finished with testing Docker containers locally, make sure to remove unused containers and images by typing `docker system prune`. These unused containers and images will take up lots of space if they are not removed.
 
-```
-kedro jupyter notebook
-```
 
-### JupyterLab
-To use JupyterLab, you need to install it:
 
-```
-pip install jupyterlab
-```
+### 3. How to deploy on Google Cloud Platform's Cloud Run
+1. First we need to build our Docker container image using Cloud Build and register to Google Container Registry (GCR). In the local terminal, navigate to the app directory and run: `gcloud builds submit --tag gcr.io/<PROJECT_ID>/<container-name>`
 
-You can also start JupyterLab:
+2. Let's now deploy the Docker container image on the cloud. Run: `gcloud run deploy --image gcr.io/<PROJECT-ID>/<container-name> --platform managed`. 
+You will then be prompted to enter service name, region, and allow for unauthentications invocations. Press `y` to allow public access to the URL. You will get a URL to your ML application running on the cloud!
 
-```
-kedro jupyter lab
-```
 
-### IPython
-And if you want to run an IPython session:
-
-```
-kedro ipython
-```
-
-### How to convert notebook cells to nodes in a Kedro project
-You can move notebook code over into a Kedro project structure using a mixture of [cell tagging](https://jupyter-notebook.readthedocs.io/en/stable/changelog.html#release-5-0-0) and Kedro CLI commands.
-
-By adding the `node` tag to a cell and running the command below, the cell's source code will be copied over to a Python file within `src/<package_name>/nodes/`:
-
-```
-kedro jupyter convert <filepath_to_my_notebook>
-```
-> *Note:* The name of the Python file matches the name of the original notebook.
-
-Alternatively, you may want to transform all your notebooks in one go. Run the following command to convert all notebook files found in the project root directory and under any of its sub-folders:
-
-```
-kedro jupyter convert --all
-```
-
-### How to ignore notebook output cells in `git`
-To automatically strip out all output cell contents before committing to `git`, you can run `kedro activate-nbstripout`. This will add a hook in `.git/config` which will run `nbstripout` before anything is committed to `git`.
-
-> *Note:* Your output cells will be retained locally.
-
-## Package your Kedro project
-
-[Further information about building project documentation and packaging your project](https://kedro.readthedocs.io/en/stable/03_tutorial/05_package_a_project.html)
+## V. References
+1. Deploy Docker Container to GCP - https://towardsdatascience.com/deploy-a-dockerized-fastapi-app-to-google-cloud-platform-24f72266c7ef
