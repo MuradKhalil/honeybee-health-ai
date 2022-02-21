@@ -8,12 +8,12 @@ Honeybee Health AI is a machine learning based web application that predicts hea
 You can visit our web application here: https://bee-proxy-server-7w6n2246cq-uk.a.run.app/
 
 Click on the image below to watch the demo video of our web application:
+
 [![Demo Video](/docs/img/demo-img.png)](https://drive.google.com/file/d/1TxJjMI0vfpGa8npw1kpNu28kRoGX7zgj/view?usp=sharing "Demo Video")
 
 ## II. Machine Learning Models
 ### 1. Bee Detection Model
 Bee detection model API: https://bee-detection-model-7w6n2246cq-uk.a.run.app/docs
-
 
 To detect individual bees from a beehive image, we used a pre-trained object detection model called [MobileNet V2](https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1), which is published by Google and was trained on 14.7M bounding boxes from 1.74M images with 600 object classes including "bee."
 
@@ -46,7 +46,6 @@ Below is a diagram of how our microservices communicate via API to provide bee h
 1. Navigate to: 
 `src/bee_detection_model` for bee detection model server, or 
 `src/bee_health_model` for bee health model server.
-<br>
 
 2. In your local terminal, run: `./fastapi_run.sh`. 
 > If you encounter errors such as...
@@ -59,12 +58,12 @@ Below is a diagram of how our microservices communicate via API to provide bee h
 
 #### b. Proxy Server (Flask)
 1. Both model servers should be running (either locally or on the cloud) before running the proxy server!
-<br>
+
 2. Navigate to `src/proxy_server`. Open `.env` file and update `DETECTION_MODEL_URL` and `HEALTH_MODEL_URL` variables accordingly.
     If your model servers are running in your local computer, visit [here](https://www.whatismybrowser.com/detect/what-is-my-local-ip-address) to find your local IP address. In most cases, your local IP address starts with `192.168...`.
-<br>
+
 3. In your local terminal, run `./flask_run.sh`.
-<br>
+
 4. Visit `localhost:5000` to test and debug the web application!
 
 
@@ -74,27 +73,29 @@ Below is a diagram of how our microservices communicate via API to provide bee h
     1. stop currently running Docker container if it already exists
     2. build new Docker image using Dockerfile
     3. create and run a Docker container using the built Docker image.
-<br>
+
 2. Navigate to `src/bee_health_model` and repeat step 1.
-<br>
+
 3. Navigate to `src/proxy_server`. Open `.env` file and update `DETECTION_MODEL_URL` and `HEALTH_MODEL_URL` variables accordingly. (If your model servers are running in your local computer, visit [here](https://www.whatismybrowser.com/detect/what-is-my-local-ip-address) to find your local IP address. In most cases, your local IP address starts with `192.168...`.) Then, repeat step 1 to build and run the containerized application.
-<br>
-3. To check whether Docker container is running properly (and to find out the name of the running container), type `docker ps`. If you see any error status, type `docker logs <NAME>` to fetch logs for the container. To inspect the insides of currently running container (aka navigate Docker container instance with CLI), type `docker exec -it <NAME> /bin/bash`.
-<br>
-4. Visit the following URLs to test your application running on your local computer:
+
+4. To check whether Docker container is running properly (and to find out the name of the running container), type `docker ps`. If you see any error status, type `docker logs <NAME>` to fetch logs for the container. To inspect the insides of currently running container (aka navigate Docker container instance with CLI), type `docker exec -it <NAME> /bin/bash`.
+
+
+5. Visit the following URLs to test your application running on your local computer:
 `localhost:8000` - bee detection model server
 `localhost:7000` - bee health model server
 `localhost:5000` - proxy server.
-<br>
-5. When you are finished, type `docker stop <NAME>` for all three containers. Make sure to remove unused containers and images by typing `docker system prune`. These unused containers and images will take up lots of space if they are not removed.
+
+6. When you are finished, type `docker stop <NAME>` for all three containers. Make sure to remove unused containers and images by typing `docker system prune`. These unused containers and images will take up lots of space if they are not removed.
 
 
 ### 3. How to deploy on GCP Cloud Run
+
 1. First we need to build our Docker container images for both model servers with Cloud Build, and then register them to Google Container Registry (GCR). In the local terminal, navigate to `src/bee_detection_model` and run `gcloud builds submit --tag gcr.io/<PROJECT_ID>/<container-name>`.
-<br>
+
 2. Let's now deploy our Docker container services on GCP Cloud Run. 
     Visit GCP Cloud Run (`https://console.cloud.google.com/run?project=<PROJECT_ID>`) and click `Create Service`. Choose `Deploy one revision from an existing container image` and select the container image you uploaded. Select Region of your choice. In Autoscaling setting, set minimum number of instances to 1 to reduce cold starts. In Authentication setting, click on `Allow unauthenticated invocations`. In Container setting, set the container port (`8000` for detection model, `7000` for health model, `5000` for proxy server) and increase Memory and CPU capacity (bee detection model server especially requires high memory and CPU. Using 4-8GB memory and 2-4 CPU worked well). Wait for the server to spin up, and check that the server is healthy and serving traffic by visiting its URL!
-<br>
+
 3. In your local terminal, navigate to `src/bee_health_model`. Repeat steps 1 and 2 to deploy the bee health model server on the cloud.
-<br>
+
 4. Finally, let's deploy our web proxy server. Navigate to `src/proxy_server`. Make sure you update `.env` file by updating `DETECTION_MODEL_URL` and `HEALTH_MODEL_URL` variables with the new live URLs. Then, follow steps 1 and 2 to push proxy server Docker image to GCR and deploy the web app on GCP Cloud Run!
