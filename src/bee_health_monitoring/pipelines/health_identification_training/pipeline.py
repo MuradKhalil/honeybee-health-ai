@@ -24,7 +24,7 @@ def create_pipeline(**kwargs):
             ),
             node(
                 func=train_model,
-                inputs=['X_train', 'y_train'],
+                inputs=['X_train', 'y_train', 'X_test', 'y_test'],
                 outputs='bee_health_model',
                 name="train_model_node",
             ),

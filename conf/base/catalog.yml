@@ -25,5 +25,5 @@ single_bees_metadata:
 
 bee_health_model:
   type: tensorflow.TensorFlowModelDataset
-  filepath: data/06_models/bee_health_model.h5
-  versioned: true
+  filepath: data/06_models/bee_health_model
+  versioned: false

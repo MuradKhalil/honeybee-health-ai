@@ -4,6 +4,7 @@ import pandas as pd
 from tensorflow import keras
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras import models, layers, optimizers, metrics
+from tensorflow_addons.metrics import F1Score 
 from sklearn.model_selection import train_test_split
 from kedro.extras.datasets.tensorflow import TensorFlowModelDataset
 
@@ -27,12 +28,11 @@ def generate_y(metadata, ids):
     df.sort_values(by='file')
 
     y_keys = {
-        "healthy":np.array([1, 0, 0, 0, 0, 0]),
-        "few varrao, hive beetles":np.array([0, 1, 0, 0, 0, 0]),
-        "Varroa, Small Hive Beetles":np.array([0, 0, 1, 0, 0, 0]),
-        "ant problems":np.array([0, 0, 0, 1, 0, 0]),
-        "hive being robbed":np.array([0, 0, 0, 0, 1, 0]),
-        "missing queen":np.array([0, 0, 0, 0, 0, 1])
+        "healthy":np.array([1, 0, 0, 0, 0]),
+        "varrao mite, hive beetles":np.array([0, 1, 0, 0, 0]),
+        "ant problems":np.array([0, 0, 1, 0, 0]),
+        "hive being robbed":np.array([0, 0, 0, 1, 0]),
+        "missing queen":np.array([0, 0, 0, 0, 1])
     }
 
     y = [y_keys[i] for i in df['health']]
@@ -50,12 +50,12 @@ def split_data(X, y) -> Tuple:
     """
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=.2, random_state=13
+        X, y, test_size=.2, random_state=13, shuffle=True
     )
 
     return X_train, X_test, y_train, y_test
 
-def train_model(X_train, y_train) -> keras.Model:
+def train_model(X_train, y_train, X_test, y_test) -> keras.Model:
     """Trains the linear regression model.
 
     Args:
@@ -66,6 +66,7 @@ def train_model(X_train, y_train) -> keras.Model:
         Trained model.
     """
     model = models.Sequential([
+        layers.Rescaling(scale=1./255),
         layers.Convolution2D(11, (3, 3), input_shape=(64, 64, 3)),
         layers.BatchNormalization(),
         layers.Activation('relu'),
@@ -83,22 +84,22 @@ def train_model(X_train, y_train) -> keras.Model:
         layers.Flatten(),
         layers.Dense(200, activation='relu'),
         layers.Dropout(.2),
-        layers.Dense(6, activation='softmax')
+        layers.Dense(5, activation='softmax')
     ])
 
     model.compile(
         optimizer=optimizers.RMSprop(learning_rate=.0001),
         loss="categorical_crossentropy",
-        metrics=["accuracy", metrics.Precision(), metrics.Recall()]
+        metrics=["accuracy", metrics.Precision(), metrics.Recall(), F1Score(num_classes=5)]
     )
 
     model.fit(
         np.array(X_train),
         np.array(y_train),
-    #    validation_data=(np.array(X_test), np.array(y_test)),
+        validation_data=(np.array(X_test), np.array(y_test)),
         verbose=True,
         shuffle=True,
-        epochs=5
+        epochs=50
     )
 
     return model
